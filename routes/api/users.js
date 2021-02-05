@@ -84,7 +84,7 @@ users.post('/login', async (req, res) => {
         if (result) {
             // 登录成功
             // 给客户端返回token
-            const rule = {id: user.id, name: user.username}
+            const rule = {id: user.id, name: user.username, email: user.email}
             jwt.sign(rule, 'privateKey', { expiresIn: 3600}, (err, token) => {
                 if (err) throw err;
                 res.json({
@@ -103,17 +103,13 @@ users.post('/login', async (req, res) => {
     }
 })
 
-// get api/users/list
-// 创建用户列表路由
-users.get('/list', passport.authenticate('jwt',{session: false}) ,(req, res) => {
+// get api/users/info
+// 创建用户信息路由
+users.get('/info', passport.authenticate('jwt',{session: false}) ,(req, res) => {
     res.json({
         'username': req.user.username,
         'email': req.user.email
     })  
-})
-
-users.get('/test', (req, res) => {
-    res.json('测试')
 })
 
 module.exports = users
