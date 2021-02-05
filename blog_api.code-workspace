@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "..\\blog_web"
+		},
+		{
+			"path": "..\\blog_manage"
+		}
+	]
+}
