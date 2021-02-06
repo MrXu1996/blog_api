@@ -47,13 +47,9 @@ app.all('*', (req, res, next) => {
 })
 
 // 引入路由模块
-const home = require('./routes/api/home')
-const admin = require('./routes/api/admin')
 const users = require('./routes/api/users')
 
 // 为路由匹配请求路径
-app.use('/api/home', home)
-app.use('/api/admin', admin)
 app.use('/api/users', users)
 
 // 监听端口
