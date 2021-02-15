@@ -59,7 +59,7 @@ users.post('/register', async (req, res) => {
             });
         }
     } else {
-        return res.status(400).json({
+        return res.json({
             msg: '请输入正确的用户信息'
         })
     }
@@ -87,8 +87,8 @@ users.post('/login', async (req, res) => {
     // 查询到用户
     if (user) {
         // 判断用户是否被禁用
-        if (user.state == 1) {
-            return res.status(400).json({
+        if (user.state == false) {
+            return res.status(404).json({
                 msg: '该用户已被禁用，请联系管理员!'
             })
         }
@@ -121,7 +121,7 @@ users.post('/login', async (req, res) => {
     } else {
         // 没有查询到用户
         return res.status(400).json({
-            msg: '邮件地址或者密码错误哦'
+            msg: '邮件地址或者密码错误'
         })
     }
 })
@@ -138,7 +138,7 @@ users.post('/add', passport.authenticate('jwt', {
         password,
         role,
         state
-    } = req.body;
+    } = req.body.users;
     // 判断客户端发送过来的数据是否为空
     if (username && email && password && role && state) {
         // 如果查询到了用户信息user是对象类型
@@ -176,7 +176,7 @@ users.post('/add', passport.authenticate('jwt', {
         }
     } else {
         return res.status(400).json({
-            msg: '请输入正确的用户信息'
+            msg: '添加用户失败'
         })
     }
 })
@@ -192,32 +192,34 @@ users.get('/', passport.authenticate('jwt', {
         // 每一页显示的数据条数
         let pagesize = req.query.pagesize
         // 总的用户数
-        let count = await User.countDocuments({})
+        let total = await User.countDocuments({})
         // 总页数
-        let total = Math.ceil( count / pagesize)
+        let count = Math.ceil( total / pagesize)
         // 页码对应的数据查询开始位置
         let start = (page - 1) * pagesize
         // 将用户信息从数据库中查询出来
-        
-        console.log( pagesize ,start );
-        const users = await User.find({}).limit(Number(pagesize)).skip(Number(start))
-        res.json(users)
+        const users = await User.find({}).sort({'_id':-1}).limit(Number(pagesize)).skip(Number(start))
+        res.json({count,total,users})
     } catch (e) {
         return res.status(404).json('没有任何数据')
     }
 })
 
-// get api/users/:id
+// get api/users/user/:username
 // 查询单个用户信息
-users.get('/:id', passport.authenticate('jwt', {
+users.get('/user/:username', passport.authenticate('jwt', {
     session: false
-}), async (req, res) => {
-    try {
-        const user = await User.findOne({_id: req.params.id})
-        res.json(user)
-    } catch (e) {
-        return res.status(404).json('没有任何数据')
-    }
+}), async (req, res) => {   
+        if (!req.params.username) {
+            return res.status(400).json("用户名不能为空");        
+        }
+        try {
+            const reg = new RegExp(req.params.username)
+        const users = await User.find({username: reg}) 
+        res.json({users}) 
+        } catch(e) {
+            return res.status(404).json({message: '没有数据！'})
+        }
 })
 
 // post api/users/edit/:id
@@ -227,13 +229,14 @@ users.post('/edit/:id', passport.authenticate('jwt', {
 }), (req, res) => {
     const user = {}
     // 判断客户端发送过来的数据是否为空
-    if (req.body.username && req.body.email && req.body.password 
-        && req.body.role && req.body.state) {
-        user.username = req.body.username
-        user.email = req.body.email
-        user.password = req.body.password
-        user.role = req.body.role
-        user.state = req.body.state
+    const data = req.body.users
+    if (data.username && data.email && data.password 
+        && data.role) {
+        user.username = data.username
+        user.email = data.email
+        user.password = data.password
+        user.role = data.role
+        user.state = data.state
 
         // 对密码进行加密
         bcrypt.genSalt(10, function (err, salt) {
@@ -258,6 +261,30 @@ users.post('/edit/:id', passport.authenticate('jwt', {
         })
     }
 })
+
+// post api/users/:id/state/:state
+// 修改用户状态接口
+users.post('/:id/state/:state', passport.authenticate('jwt', {
+    session: false
+}), (req, res) => {
+    // 参数验证
+    if (!req.params.id) {
+        return res.sendResult(null,400,"用户ID不能为空");        
+    }
+    if(isNaN(parseInt(req.params.id))) return res.sendResult(null,400,"用户ID必须是数字");
+    User.findOneAndUpdate({_id: req.params.id},{$set: {state: req.params.state}}, {new: true}, function(err, data) {
+        if(err) {
+            return res.status(400).json('修改用户状态失败')
+        }
+        else if(!data) {
+            return res.status(404).json('未查询到用户信息')            
+        }
+        else if(data){
+            return res.status(200).json('修改用户状态成功')
+        }
+    })
+}
+)
 
 // delete api/users/delete/:id
 // 删除单个用户信息

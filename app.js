@@ -33,7 +33,7 @@ require('./config/passport')(passport)
 
 // 设置cors跨越请求
 app.all('*', (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*')
+    res.header('Access-Control-Allow-Origin', '*')    
     res.header('Access-Control-Allow-Headers', 'X-Requested-With, mytoken')
     res.header('Access-Control-Allow-Headers', 'X-Requested-With, Authorization')
     res.setHeader('Content-Type', 'application/json;charset=utf-8')

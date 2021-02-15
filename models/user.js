@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 2,
-        maxlength: 20
+        maxlength: 10
     },
     email: {
         type: String,
@@ -25,9 +25,9 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     state: {
-        type: Number,
-        // 0：启用，1：禁用
-        default: 0
+        type: Boolean,
+        // 1：启用，0：禁用
+        default: true
     }
 })
 
