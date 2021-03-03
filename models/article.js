@@ -10,12 +10,12 @@ const articleScheme = new mongoose.Schema({
         minlength: 2
     },
     author: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId ,
         ref: 'User',
         required: true
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId ,
         ref: 'ArticleCategory',
         required: true
     },

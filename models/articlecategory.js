@@ -13,6 +13,14 @@ const articleCategorySchema = new mongoose.Schema({
 // 创建集合
 const ArticleCategory = mongoose.model('ArticleCategory', articleCategorySchema)
 
+// ArticleCategory.create({
+//     name: '推荐'
+// }).then(() => {
+//     console.log('分类创建成功');
+// }).catch(() => {
+//     console.log('失败');
+// })
+
 module.exports = { 
     ArticleCategory 
 }

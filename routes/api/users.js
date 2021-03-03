@@ -9,7 +9,6 @@ const passport = require('passport')
 const {
     User
 } = require('../../models/user');
-const { nextTick } = require('process');
 
 const users = express.Router();
 
@@ -103,7 +102,7 @@ users.post('/login', async (req, res) => {
                 email: user.email
             }
             jwt.sign(rule, 'privateKey', {
-                expiresIn: 3600
+                expiresIn: 3600 * 24
             }, (err, token) => {
                 if (err) throw err;
                 res.json({
@@ -215,7 +214,7 @@ users.get('/user/:username', passport.authenticate('jwt', {
         }
         try {
             const reg = new RegExp(req.params.username)
-        const users = await User.find({username: reg}) 
+            const users = await User.find({username: reg}) 
         res.json({users}) 
         } catch(e) {
             return res.status(404).json({message: '没有数据！'})
@@ -294,7 +293,6 @@ users.delete('/delete/:id', passport.authenticate('jwt', {
     try {
         const user = await User.findOneAndRemove({_id: req.params.id})
         res.json(user)
-        // user.save().then(user => res.json(user))
     } catch (e) {
         return res.status(404).json('删除失败')
     }

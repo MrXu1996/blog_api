@@ -8,6 +8,9 @@ const passport = require('passport')
 // 导入express-session模块
 // const session = require('express-session')
 
+// 导入 dateformat 第三方模块
+const dateFormat = require('dateformat')
+
 // 创建网站服务器
 const app = express()
 // 数据库连接
@@ -48,9 +51,15 @@ app.all('*', (req, res, next) => {
 
 // 引入路由模块
 const users = require('./routes/api/users')
+const articles = require('./routes/api/articles')
+const articlecategory = require('./routes/api/articlecategory')
 
 // 为路由匹配请求路径
 app.use('/api/users', users)
+app.use('/api/articles', articles)
+app.use('/api/articlecategory', articlecategory)
+
+app.use(express.static('public'))
 
 // 监听端口
 app.listen(9090);
