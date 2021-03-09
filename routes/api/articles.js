@@ -27,17 +27,22 @@ articles.post('/add', passport.authenticate('jwt', {
     form.parse(req, async (err, fields, files) => {
         // 1.err错误对象 如果表单解析失败，err里面存储错误信息 如果表单解析成功，err将会是null
         // 2.fields 对象类型 保存普通表单数据
-        // 3.files 对象类型 保存了和文件相关的数据      
-        await Article.create({
-            title: fields.title,
-            author: fields.author,
-            category: fields.category,
-            publishDate: fields.publishDate,
-            cover: files.cover.path ? 'http://localhost:9090'+ files.cover.path.split('public')[1] : '' ,
-            // cover: files.cover.path.split('public')[1],
-            content: fields.content
-        })
-        res.json('发布成功')
+        // 3.files 对象类型 保存了和文件相关的数据 
+        try {
+            await Article.create({
+                title: fields.title,
+                author: fields.author,
+                category: fields.category,
+                tag: fields.tag.split(','),
+                publishDate: fields.publishDate,
+                cover: files.cover.path ? 'http://localhost:9090'+ files.cover.path.split('public')[1] : '' ,
+                // cover: files.cover.path.split('public')[1],
+                content: fields.content
+            })
+            res.json('发布成功')
+        } catch(e) {
+            return res.status(400).json('文章添加失败，请添加封面图片！')
+        }
     })
 })
 
@@ -64,8 +69,8 @@ articles.get('/',passport.authenticate('jwt', {
     }
 })
 
-// get api/articles/article/:title 根据文章标题查询文章
-articles.get('/article/:title', passport.authenticate('jwt', {
+// get api/articles/title/:title 根据文章标题查询文章
+articles.get('/title/:title', passport.authenticate('jwt', {
     session: false
 }), async (req, res) => {   
         if (!req.params.title) {
@@ -74,14 +79,14 @@ articles.get('/article/:title', passport.authenticate('jwt', {
         try {
             const reg = new RegExp(req.params.title)
             const articles = await Article.find({title: reg}).populate('author').populate('category')
-        res.json({articles}) 
+            res.json({articles}) 
         } catch(e) {
             return res.status(404).json({message: '没有数据！'})
         }
 })
 
-// get api/articles/article/:id 根据文章id查询文章
-articles.get('/:id', passport.authenticate('jwt', {
+// get api/articles/id/:id 根据文章id查询文章
+articles.get('/id/:id', passport.authenticate('jwt', {
     session: false
 }), async (req, res) => {   
         if (!req.params.id) {
@@ -89,6 +94,36 @@ articles.get('/:id', passport.authenticate('jwt', {
         }
         try {
             const articles = await Article.find({_id: req.params.id}).populate('author').populate('category')
+        res.json({articles}) 
+        } catch(e) {
+            return res.status(404).json({message: '没有数据！'})
+        }
+})
+
+// get api/articles/category/:category 根据文章分类查询文章
+articles.get('/category/:category', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+        if (!req.params.category) {
+            return res.status(400).json("分类名不能为空");        
+        }
+        try {
+            const articles = await Article.find({category: req.params.category}).populate('author').populate('category')
+        res.json({articles}) 
+        } catch(e) {
+            return res.status(404).json({message: '没有数据！'})
+        }
+})
+
+// get api/articles/tag/:tag 根据文章标签查询文章
+articles.get('/tag/:tag', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {
+        if (!req.params.tag) {
+            return res.status(400).json("标签名不能为空");        
+        }
+        try {
+            const articles = await Article.find({tag: {$elemMatch:{$eq: req.params.tag}}}).populate('author').populate('category')
         res.json({articles}) 
         } catch(e) {
             return res.status(404).json({message: '没有数据！'})

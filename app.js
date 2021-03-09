@@ -53,11 +53,13 @@ app.all('*', (req, res, next) => {
 const users = require('./routes/api/users')
 const articles = require('./routes/api/articles')
 const articlecategory = require('./routes/api/articlecategory')
+const articletag = require('./routes/api/articletag')
 
 // 为路由匹配请求路径
 app.use('/api/users', users)
 app.use('/api/articles', articles)
 app.use('/api/articlecategory', articlecategory)
+app.use('/api/articletag', articletag)
 
 app.use(express.static('public'))
 

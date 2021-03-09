@@ -8,7 +8,6 @@ const passport = require('passport')
 const {
     ArticleCategory
 } = require('../../models/articlecategory');
-const articles = require('./articles');
 
 const articlecategory = express.Router();
 
@@ -56,9 +55,9 @@ articlecategory.get('/', passport.authenticate('jwt', {
     return res.status(400).json('获取文章分类信息失败')
 })
 
-// get api/articlecategory/:name
+// get api/articlecategory/categoryname/:name
 // 查询单个分类信息
-articlecategory.get('/:name', passport.authenticate('jwt', {
+articlecategory.get('/categoryname/:name', passport.authenticate('jwt', {
     session: false
 }), async (req, res) => {
         if (!req.params.name) {
@@ -66,13 +65,27 @@ articlecategory.get('/:name', passport.authenticate('jwt', {
         }
         try {
             const reg = new RegExp(req.params.name)
-            const category = await ArticleCategory.find({name: reg}) 
+            const category = await ArticleCategory.find({name: reg})
             res.json({category}) 
         } catch(e) {
             return res.status(404).json({message: '没有数据！'})
         }
 })
 
+// get api/articlecategory/categoryid/:id 根据分类id查询文章
+articlecategory.get('/categoryid/:id', passport.authenticate('jwt', {
+    session: false
+}), async (req, res) => {   
+        if (!req.params.id) {
+            return res.status(400).json("文章标题不能为空");        
+        }
+        try {
+            const category = await ArticleCategory.find({_id: req.params.id}).populate('author').populate('category').populate('tag')
+        res.json({category}) 
+        } catch(e) {
+            return res.status(404).json({message: '没有数据！'})
+        }
+})
 
 // 修改文章分类
 // post api/articlecategory/edit/:id

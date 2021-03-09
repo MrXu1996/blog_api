@@ -19,6 +19,14 @@ const articleScheme = new mongoose.Schema({
         ref: 'ArticleCategory',
         required: true
     },
+    // tag: {
+    //     type: mongoose.Schema.Types.ObjectId ,
+    //     ref: 'ArticleTag',
+    //     required: true
+    // },
+    tag: {
+        type: Array
+    },
     publishDate: {
         type: Date,
         default: Date.now
