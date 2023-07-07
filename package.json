@@ -19,7 +19,9 @@
     "dateformat": "^4.5.1",
     "express-session": "^1.17.1",
     "formidable": "^1.2.2",
+    "jsencrypt": "^3.3.2",
     "jsonwebtoken": "^8.5.1",
+    "node-rsa": "^1.1.1",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0"
   }
